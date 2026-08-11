@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
@@ -18,20 +18,20 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Extract Project Zip and Find Gradle
+    - name: Extract Zip File
       run: |
-        unzip -o untitled.zip -d extracted
-        # Find directory containing gradlew file
-        GRADLE_DIR=$(find extracted -name "gradlew" -exec dirname {} \;)
-        echo "Gradle found in: $GRADLE_DIR"
-        cp -r $GRADLE_DIR/* .
-        chmod +x gradlew || true
+        unzip -o untitled.zip
 
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
+    - name: Build APK with Gradle
+      run: |
+        GRADLE_FILE=$(find . -maxdepth 3 -name "gradlew" | head -n 1)
+        PROJECT_DIR=$(dirname "$GRADLE_FILE")
+        cd "$PROJECT_DIR"
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: '**/build/outputs/apk/debug/*.apk'
