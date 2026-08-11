@@ -1,32 +1,23 @@
 name: Build Android APK
 
-on:
-  push:
-    branches: [ "main" ]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Extract Zip File
+    - name: Unzip and Build APK
       run: |
-        unzip -o untitled.zip
-
-    - name: Build APK with Gradle
-      run: |
-        GRADLE_FILE=$(find . -maxdepth 3 -name "gradlew" | head -n 1)
-        PROJECT_DIR=$(dirname "$GRADLE_FILE")
-        cd "$PROJECT_DIR"
+        unzip -q untitled.zip -d app_folder
+        cd $(find app_folder -name "gradlew" -printf "%h\n" | head -n 1)
         chmod +x gradlew
         ./gradlew assembleDebug
 
@@ -34,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: '**/build/outputs/apk/debug/*.apk'
+        path: '**/*.apk'
