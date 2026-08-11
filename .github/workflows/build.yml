@@ -18,14 +18,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Extract Project Zip
+    - name: Extract Project Zip and Find Gradle
       run: |
-        unzip -q untitled.zip -d temp_app
-        if [ -d "temp_app/untitled" ]; then
-          cp -r temp_app/untitled/* .
-        else
-          cp -r temp_app/* .
-        fi
+        unzip -o untitled.zip -d extracted
+        # Find directory containing gradlew file
+        GRADLE_DIR=$(find extracted -name "gradlew" -exec dirname {} \;)
+        echo "Gradle found in: $GRADLE_DIR"
+        cp -r $GRADLE_DIR/* .
         chmod +x gradlew || true
 
     - name: Build Debug APK
